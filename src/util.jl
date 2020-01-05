@@ -1,4 +1,3 @@
-export find_active
 
 function recur_active!(active::BitArray, ind::Int8, xs::Array{Int8},
                        ys::Array{Int8}, fs::Array{Int8},

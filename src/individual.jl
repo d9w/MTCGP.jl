@@ -1,9 +1,8 @@
-
-export Node, Individual
+export MType, Node, Individual
 
 MType = Union{Float64, Array{Float64}}
 
-function null(args...)
+function null(args...)::Nothing
     nothing
 end
 
@@ -29,7 +28,7 @@ function Individual(cfg::Dict, chromosome::Array{Float64}, genes::Array{Int8},
     C = cfg["columns"]
     nodes = Array{Node}(undef, R * C + cfg["nin"])
     for i in 1:cfg["nin"]
-        nodes[i] = Node(0, 0, null, true)
+        nodes[i] = Node(0, 0, null, false)
     end
     i = cfg["nin"]
     active = find_active(cfg, genes, outputs)
@@ -46,7 +45,7 @@ function Individual(cfg::Dict, chromosome::Array{Float64}, genes::Array{Int8},
     Individual(chromosome, genes, outputs, nodes, buffer, fitness)
 end
 
-function Individual(cfg::Dict, chromosome::Array{Float64})
+function Individual(cfg::Dict, chromosome::Array{Float64})::Individual
     R = cfg["rows"]
     C = cfg["columns"]
     genes = reshape(chromosome[1:(R*C*3)], R, C, 3)
@@ -59,7 +58,7 @@ function Individual(cfg::Dict, chromosome::Array{Float64})
     Individual(cfg, chromosome, genes, outputs)
 end
 
-function Individual(cfg::Dict)
+function Individual(cfg::Dict)::Individual
     chromosome = rand(cfg["rows"] * cfg["columns"] * 3 + cfg["nout"])
     Individual(cfg, chromosome)
 end
