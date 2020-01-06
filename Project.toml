@@ -1,0 +1,8 @@
+name = "MTCGP"
+uuid = "a129c784-137e-4367-808a-fa3f32345926"
+authors = ["Dennis Wilson <d9w@pm.me>"]
+version = "0.1.0"
+
+[deps]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
