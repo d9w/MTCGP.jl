@@ -12,6 +12,7 @@ function f_identity(x::MType, y::MType)
 end
 
 cfg = Dict("rows"=>3, "columns"=>10, "nin"=>4, "nout"=>1, "nfitness"=>2,
+           "mutation"=>0.1, "output_mutation"=>0.3,
            "functions"=>[f_add, f_mul, f_identity],
            "two_arity"=>BitArray([true, true, false]))
 

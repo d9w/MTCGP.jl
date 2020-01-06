@@ -1,6 +1,6 @@
 export MType, Node, Individual
 
-MType = Union{Float64, Array{Float64}}
+MType = Union{Nothing, Float64, Array{Float64}}
 
 function null(args...)::Nothing
     nothing
@@ -40,7 +40,7 @@ function Individual(cfg::Dict, chromosome::Array{Float64}, genes::Array{Int8},
                             active[x, y])
         end
     end
-    buffer = Array{MType}(undef, R * C + cfg["nin"])
+    buffer = Array{MType}(nothing, R * C + cfg["nin"])
     fitness = -Inf .* ones(cfg["nfitness"])
     Individual(chromosome, genes, outputs, nodes, buffer, fitness)
 end
