@@ -1,6 +1,4 @@
-export MType, Node, Individual
-
-MType = Union{Nothing, Float64, Array{Float64}}
+export Node, Individual
 
 function null(args...)::Nothing
     nothing
