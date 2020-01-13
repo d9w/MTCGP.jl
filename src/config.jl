@@ -1,34 +1,18 @@
 export get_config
 
-function load_functions(funs::Dict)
-    newfuns = []
-    for k in keys(funs)
-        if isdefined(Config, parse(k))
-            debug("Loading functions: $k is already defined, skipping")
-        else
-            if length(funs[k])==1
-                sgen(k, funs[k][1], funs[k][1], funs[k][1], funs[k][1])
-            elseif length(funs[k])==2
-                sgen(k, funs[k][1], funs[k][1], funs[k][2], funs[k][2])
-            else
-                sgen(k, funs[k][1], funs[k][2], funs[k][3], funs[k][4])
-            end
-            append!(newfuns, [k])
-        end
-    end
-    [eval(parse(k)) for k in newfuns]
-end
-
 function get_config(config::Dict)
-    for k in keys(config)
-        if k == "functions"
-            append!(functions, load_functions(config["functions"]))
-        else
-            if config[k] != nothing
-                eval(parse(string(k, "=", config[k])))
-            end
+    two_arity = falses(length(config["functions"]))
+    functions = Array{Function}(undef, length(config["functions"]))
+    for i in eachindex(config["functions"])
+        fname = config["functions"][i]
+        if arity[fname] == 2
+            two_arity[i] = true
         end
+        functions[i] = eval(Meta.parse(fname))
     end
+    config["two_arity"] = two_arity
+    config["functions"] = functions
+    config
 end
 
 function get_config(file::String)

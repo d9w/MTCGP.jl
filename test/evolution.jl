@@ -1,3 +1,7 @@
+using Test
+using MTCGP
+
+cfg = get_config("../cfg/test.yaml")
 
 @testset "Mutation" begin
 

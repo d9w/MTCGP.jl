@@ -1,55 +1,3 @@
-export MType
-
-global arity = Dict()
-
-SorX = Union{Symbol, Expr}
-MType = Union{Nothing, Float64, Array{Float64}}
-
-function fgen(name::Symbol, ar::Int, s1::SorX, s2::SorX, s3::SorX, s4::SorX;
-              safe::Bool=false)
-    @eval function $name(x::Float64, y::Float64)::MType
-        $s1
-    end
-    @eval function $name(x::Float64, y::Array{Float64})::MType
-        $s2
-    end
-    if safe
-        @eval function $name(x::Array{Float64}, y::Float64)::MType
-            try
-                return $s3
-            catch
-                return x
-            end
-        end
-        @eval function $name(x::Array{Float64}, y::Array{Float64})::MType
-            try
-                return $s4
-            catch
-                return x
-            end
-        end
-    else
-        @eval function $name(x::Array{Float64}, y::Float64)::MType
-            $s3
-        end
-        @eval function $name(x::Array{Float64}, y::Array{Float64})::MType
-            $s4
-        end
-    end
-    global arity[String(name)] = ar
-end
-
-function fgen(name::Symbol, arity::Int, s1::SorX, s2::SorX, s3::SorX; safe::Bool=false)
-    fgen(name, arity, s1, s2, s2, s3; safe=safe)
-end
-
-function fgen(name::Symbol, arity::Int, s1::SorX, s2::SorX; safe::Bool=false)
-    fgen(name, arity, s1, s1, s2, s2; safe=safe)
-end
-
-function fgen(name::Symbol, arity::Int, s1::SorX)
-    fgen(name, arity, s1, s1, s1, s1)
-end
 
 function eqsize(x::Array{Float64}, y::Array{Float64})
     if ndims(x) != ndims(y)
@@ -198,5 +146,7 @@ fgen(:f_max_window, 1, :(x), :(ImageFiltering.MapWindow.mapwindow(
     maximum, x, 3*ones(Int, ndims(x)))); safe=true)
 fgen(:f_mean_window, 1, :(x), :(ImageFiltering.MapWindow.mapwindow(
     Statistics.mean, x, 3*ones(Int, ndims(x)))); safe=true)
-fgen(:f_restrict, 1, :(x), :(scaled(ImageTransformations.restrict(x))))
-fgen(:f_resize, 1, :(x), :(scaled(ImageTransformations.imresize(x, ratio=1/2))))
+fgen(:f_restrict, 1, :(x),
+     :(scaled(ImageTransformations.restrict(x))); safe=true)
+fgen(:f_resize, 1, :(x),
+     :(scaled(ImageTransformations.imresize(x, ratio=1/2))); safe=true)

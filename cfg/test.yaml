@@ -1,0 +1,15 @@
+rows: 3
+columns: 10
+nin: 4
+nout: 1
+nfitness: 2
+mutation: 0.1
+output_mutation: 0.3
+lambda: 5
+functions:
+  - f_add
+  - f_subtract
+  - f_mult
+  - f_div
+  - f_abs
+  - f_mean

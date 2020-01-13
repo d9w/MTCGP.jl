@@ -1,22 +1,9 @@
-
-function f_add(x::MType, y::MType)
-    (x .+ y) / 2.0
-end
-
-function f_mul(x::MType, y::MType)
-    x .* y
-end
-
-function f_identity(x::MType, y::MType)
-    x
-end
-
-cfg = Dict("rows"=>3, "columns"=>10, "nin"=>4, "nout"=>1, "nfitness"=>2,
-           "mutation"=>0.1, "output_mutation"=>0.3,
-           "functions"=>[f_add, f_mul, f_identity],
-           "two_arity"=>BitArray([true, true, false]))
+using Test
+using MTCGP
+import YAML
 
 @testset "Individual construction" begin
+    cfg = get_config("../cfg/test.yaml")
     ind = Individual(cfg)
 
     @test length(ind.nodes) == 3 * 10 + 4
@@ -31,6 +18,9 @@ cfg = Dict("rows"=>3, "columns"=>10, "nin"=>4, "nout"=>1, "nfitness"=>2,
 end
 
 @testset "Processing" begin
+    cfg = YAML.load_file("../cfg/test.yaml")
+    cfg["functions"] = ["f_abs", "f_add", "f_mult"]
+    cfg = get_config(cfg)
     ind = Individual(cfg)
 
     inputs = zeros(4)
