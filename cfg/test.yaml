@@ -1,11 +1,18 @@
+# Darwin.jl settings
+seed: 0
+d_fitness: 1
+n_population: 5
+n_elite: 1
+n_gen: 100
+log_gen: 10
+save_gen: 0
+m_rate: 0.1
+# MTCGP.jl settings
 rows: 3
 columns: 10
-nin: 4
-nout: 1
-nfitness: 2
-mutation: 0.1
-output_mutation: 0.3
-lambda: 5
+n_in: 4
+n_out: 1
+out_m_rate: 0.3
 functions:
   - f_add
   - f_subtract

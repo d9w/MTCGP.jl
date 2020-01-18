@@ -1,16 +1,16 @@
 export mutate, goldman_mutate
 
-function mutate(cfg::Dict, ind::Individual)::Individual
+function mutate(cfg::Dict, ind::MTCGPInd)::MTCGPInd
     chromosome = copy(ind.chromosome)
     chance = rand(length(chromosome))
     ngenes = cfg["rows"]*cfg["columns"]*3
-    change = [chance[1:ngenes] .<= cfg["mutation"];
-              chance[(ngenes+1):end] .<= cfg["output_mutation"]]
+    change = [chance[1:ngenes] .<= cfg["m_rate"];
+              chance[(ngenes+1):end] .<= cfg["out_m_rate"]]
     chromosome[change] = rand(sum(change))
-    Individual(cfg, chromosome)
+    MTCGPInd(cfg, chromosome)
 end
 
-function goldman_mutate(cfg::Dict, ind::Individual)::Individual
+function goldman_mutate(cfg::Dict, ind::MTCGPInd)::MTCGPInd
     changed = false
     while !changed
         global child = mutate(cfg, ind)
@@ -38,3 +38,17 @@ function goldman_mutate(cfg::Dict, ind::Individual)::Individual
     child
 end
 
+function evolution(cfg::Dict, fitness::Function; kwargs...)
+    function evaluate!(evo::Darwin.Evolution)
+        fit = i::MTCGPInd->fitness(i; seed=evo.gen)
+        Darwin.fitness_evaluate!(evo; fitness=fitness)
+    end
+    function populate!(evo::Darwin.Evolution)
+        mutation = i::MTCGPInd->goldman_mutate(cfg, i)
+        Darwin.oneplus_populate!(evo; mutation=mutation)
+    end
+
+    Darwin.Evolution(MTCGPInd, cfg; evaluate=evaluate!,
+                     populate=populate!,
+                     kwargs...)
+end

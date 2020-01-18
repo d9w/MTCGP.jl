@@ -7,6 +7,7 @@ import Images
 import ImageFiltering
 import ImageMorphology
 import ImageTransformations
+import Darwin
 
 include("util.jl")
 include("functions.jl")
