@@ -5,23 +5,23 @@ function null(args...)::Nothing
 end
 
 struct Node
-    x::Int8
-    y::Int8
+    x::Int16
+    y::Int16
     f::Function
     active::Bool
 end
 
 struct MTCGPInd <: Darwin.Individual
     chromosome::Array{Float64}
-    genes::Array{Int8}
-    outputs::Array{Int8}
+    genes::Array{Int16}
+    outputs::Array{Int16}
     nodes::Array{Node}
     buffer::Array{MType}
     fitness::Array{Float64}
 end
 
-function MTCGPInd(cfg::Dict, chromosome::Array{Float64}, genes::Array{Int8},
-                    outputs::Array{Int8})::MTCGPInd
+function MTCGPInd(cfg::Dict, chromosome::Array{Float64}, genes::Array{Int16},
+                    outputs::Array{Int16})::MTCGPInd
     R = cfg["rows"]
     C = cfg["columns"]
     nodes = Array{Node}(undef, R * C + cfg["n_in"])
@@ -51,8 +51,8 @@ function MTCGPInd(cfg::Dict, chromosome::Array{Float64})::MTCGPInd
     genes[:, :, 1] .*= maxs
     genes[:, :, 2] .*= maxs
     genes[:, :, 3] .*= length(cfg["functions"])
-    genes = Int8.(ceil.(genes))
-    outputs = Int8.(ceil.(chromosome[(R*C*3+1):end] .* (R * C + cfg["n_in"])))
+    genes = Int16.(ceil.(genes))
+    outputs = Int16.(ceil.(chromosome[(R*C*3+1):end] .* (R * C + cfg["n_in"])))
     MTCGPInd(cfg, chromosome, genes, outputs)
 end
 

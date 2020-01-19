@@ -41,7 +41,7 @@ end
 function evolution(cfg::Dict, fitness::Function; kwargs...)
     function evaluate!(evo::Darwin.Evolution)
         fit = i::MTCGPInd->fitness(i; seed=evo.gen)
-        Darwin.fitness_evaluate!(evo; fitness=fitness)
+        Darwin.fitness_evaluate!(evo; fitness=fit)
     end
     function populate!(evo::Darwin.Evolution)
         mutation = i::MTCGPInd->goldman_mutate(cfg, i)
@@ -51,4 +51,8 @@ function evolution(cfg::Dict, fitness::Function; kwargs...)
     Darwin.Evolution(MTCGPInd, cfg; evaluate=evaluate!,
                      populate=populate!,
                      kwargs...)
+end
+
+function interpret(i::MTCGPInd)
+    x::AbstractArray->process(i, x)
 end
