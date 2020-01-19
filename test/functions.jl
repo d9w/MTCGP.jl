@@ -106,6 +106,7 @@ end
 end
 
 @testset "Logical functions" begin
+    # TODO: not using eqsize, can fail on dims(x) != dims(y)
     functions = [
         MTCGP.f_and,
         MTCGP.f_or,

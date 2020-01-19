@@ -1,0 +1,79 @@
+# Darwin.jl settings
+seed: 0
+d_fitness: 1
+n_population: 5
+n_elite: 1
+n_gen: 1000000
+log_gen: 100
+save_gen: 0
+m_rate: 0.1
+# MTCGP.jl settings
+rows: 2
+columns: 100
+n_in: 1
+n_out: 10
+out_m_rate: 0.3
+functions:
+  - f_head
+  - f_last
+  - f_tail
+  - f_diff
+  - f_reverse
+  - f_push_back
+  - f_push_front
+  - f_sum
+  - f_vectorize
+  - f_add
+  - f_subtract
+  - f_mult
+  - f_div
+  - f_abs
+  - f_sqrt
+  - f_pow
+  - f_exp
+  - f_sqrt_xy
+  - f_lt
+  - f_gt
+  - f_stddev
+  - f_skew
+  - f_mean
+  - f_median
+  - f_range
+  - f_round
+  - f_ceil
+  - f_floor
+  - f_maximum
+  - f_max
+  - f_minimum
+  - f_min
+  - f_vecfromdouble
+  - f_zeros
+  - f_ones
+  - f_normalize
+  - f_corners
+  - f_filter
+  - f_gaussian
+  - f_laplacian
+  - f_sobelx
+  - f_sobely
+  - f_canny
+  - f_edge
+  - f_histogram
+  - f_dilate
+  - f_erode
+  - f_opening
+  - f_closing
+  - f_tophat
+  - f_morphogradient
+  - f_morpholaplace
+  - f_rotate_right
+  - f_rotate_left
+  - f_shift_up
+  - f_shift_down
+  - f_shift_left
+  - f_shift_right
+  - f_min_window
+  - f_max_window
+  - f_mean_window
+  - f_restrict
+  - f_resize

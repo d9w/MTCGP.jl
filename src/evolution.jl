@@ -56,3 +56,7 @@ end
 function interpret(i::MTCGPInd)
     x::AbstractArray->process(i, x)
 end
+
+function mean_interpret(i::MTCGPInd)
+    x::AbstractArray->mean_process(i, x)
+end
