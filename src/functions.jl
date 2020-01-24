@@ -123,7 +123,8 @@ fgen(:f_canny, 1, :(x),
                                  Images.Percentile(20)))));
      safe=true)
 fgen(:f_edge, 1, :(x), :(ndims(x) > 1 ? scaled(Images.imedge(x)[3]) : x))
-fgen(:f_histogram, 1, :(x), :(normalized(Float64.(Images.imhist(x, 10)[2]))))
+fgen(:f_histogram, 1, :(x), :(normalized(Float64.(Images.imhist(x, 10)[2])));
+     safe=true)
 fgen(:f_dilate, 1, :(x), :(ImageMorphology.dilate(x)))
 fgen(:f_erode, 1, :(x), :(scaled(ImageMorphology.erode(x))))
 fgen(:f_opening, 1, :(x), :(scaled(ImageMorphology.opening(x))))
