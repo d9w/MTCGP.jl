@@ -2,8 +2,8 @@ using Test
 using MTCGP
 
 const global D = 3
-const global smax = 100
-const global snum = 4
+const global smax = 10
+const global snum = 5
 
 function test_inputs(f::Function, inps::AbstractArray)
     out = copy(f(inps...))
@@ -13,7 +13,7 @@ function test_inputs(f::Function, inps::AbstractArray)
     @test all(out .<= 1.0)
 end
 
-function test_function(f::Function)
+function test_constant_function(f::Function)
     for constant in -1:1
         c = Float64(constant)
         test_inputs(f, [c, c])
@@ -22,12 +22,17 @@ function test_function(f::Function)
                 test_inputs(f, [c, c .* ones(repeat([s], inner=d)...)])
                 test_inputs(f, [c .* ones(repeat([s], inner=d)...), c])
                 for dy in 1:D
-                    test_inputs(f, [c .* ones(repeat([s], inner=d)...),
-                                    c .* ones(repeat([s], inner=dy)...)])
+                    for sy in Int64.(round.(range(1, smax, length=snum)))
+                        test_inputs(f, [c .* ones(repeat([s], inner=d)...),
+                                        c .* ones(repeat([sy], inner=dy)...)])
+                    end
                 end
             end
         end
     end
+end
+
+function test_function(f::Function)
     test_inputs(f, [2 * rand() - 1, 2 * rand() - 1])
     for d in 1:D
         for s in Int64.(round.(range(1, smax, length=snum)))
@@ -36,8 +41,10 @@ function test_function(f::Function)
             test_inputs(f, [2 .* rand(repeat([s], inner=d)...) .- 1,
                             2 * rand()-1])
             for dy in 1:D
-                test_inputs(f, [2 .* rand(repeat([s], inner=d)...) .- 1,
-                                2 .* rand(repeat([s], inner=dy)...) .- 1])
+                for sy in Int64.(round.(range(1, smax, length=snum)))
+                    test_inputs(f, [2 .* rand(repeat([s], inner=d)...) .- 1,
+                                    2 .* rand(repeat([sy], inner=dy)...) .- 1])
+                end
             end
         end
     end
@@ -86,7 +93,17 @@ end
     test_functions(functions)
 end
 
-@testset  "Statistical functions" begin
+@testset "Weight functions" begin
+    functions = [
+        MTCGP.f_w_exp,
+        MTCGP.f_w_pow,
+        MTCGP.f_w_sqrt_xy,
+        MTCGP.f_w_subtract
+    ]
+    #test_functions(functions)
+end
+
+@testset "Statistical functions" begin
     functions = [
         MTCGP.f_stddev,
         MTCGP.f_skew,
@@ -106,7 +123,6 @@ end
 end
 
 @testset "Logical functions" begin
-    # TODO: not using eqsize, can fail on dims(x) != dims(y)
     functions = [
         MTCGP.f_and,
         MTCGP.f_or,

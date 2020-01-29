@@ -1,5 +1,5 @@
 
-function eqsize(x::Array{Float64}, y::Array{Float64})
+function eqsize(x::AbstractArray, y::AbstractArray)
     if ndims(x) != ndims(y)
         maxdim = max(ndims(x), ndims(y))
         x = repeat(x, ones(Int, maxdim)...)
@@ -70,6 +70,21 @@ fgen(:f_lt, 2, :(Float64(x < y)), :(Float64.(x .< y)),
 fgen(:f_gt, 2, :(Float64(x > y)), :(Float64.(x .> y)),
     :(Float64.(.>(eqsize(x, y)...))))
 
+# GEGE weight functions
+fgen(:f_w_exp, 2, :(2 * exp(-(x - y)^2) - 1),
+     :(2 .* exp.(.-(x .- y).^2) .- 1),
+     :(2 .* exp.(.-((.-(eqsize(x, y)...)).^2) .- 1)))
+fgen(:f_w_pow, 2, :(1 - 2 * abs(x) ^ abs(y)),
+     :(1 .- 2 .* abs(x) .^ abs.(y)),
+     :(1 .- 2 .* abs.(x) .^ abs(y)),
+     :(1 .- 2 .* .^(eqsize(abs.(x), abs.(y))...)))
+fgen(:f_w_sqrt_xy, 2, :(1 - sqrt(x^2 + y^2)),
+     :(1 .- sqrt.(x^2 .+ y.^2)),
+     :(1 .- sqrt.(x.^2 .+ y^2)),
+     :(1 .- sqrt.(.+(eqsize(x.^2, y.^2)...))))
+fgen(:f_w_subtract, 2, :(1 - abs(x - y)), :(1 .- abs.(x .- y)),
+     :(1 .- abs.(.-(eqsize(x, y)...))))
+
 # Statistical
 fgen(:f_stddev, 1, :(zeros(1)[1]), :(scaled(Statistics.std(x[:]))))
 fgen(:f_skew, 1, :(x), :(scaled(StatsBase.skewness(x[:]))))
@@ -86,10 +101,18 @@ fgen(:f_minimum, 1, :(x), :(minimum(x)))
 fgen(:f_min, 2, :(min(x, y)), :(min.(x, y)), :(min.(eqsize(x, y)...)))
 
 # Logical
-fgen(:f_and, 2, :(Float64.((&).(Int.(round.(x)), Int.(round.(y))))))
-fgen(:f_or, 2, :(Float64.((|).(Int.(round.(x)), Int.(round.(y))))))
-fgen(:f_xor, 2, :(Float64.(xor.(Int.(abs.(round.(x))),
-                                Int.(abs.(round.(y)))))))
+fgen(:f_and, 2, :(Float64((&)(Int(round(x)), Int(round(y))))),
+     :(Float64.((&).(Int(round(x)), Int.(round.(y))))),
+     :(Float64.((&).(Int.(round.(x)), Int(round(y))))),
+     :(Float64.((&).(eqsize(Int.(round.(x)), Int.(round.(y)))...))))
+fgen(:f_or, 2, :(Float64((|)(Int(round(x)), Int(round(y))))),
+     :(Float64.((|).(Int(round(x)), Int.(round.(y))))),
+     :(Float64.((|).(Int.(round.(x)), Int(round(y))))),
+     :(Float64.((|).(eqsize(Int.(round.(x)), Int.(round.(y)))...))))
+fgen(:f_xor, 2, :(Float64(xor(Int(abs(round(x))), Int(abs(round(y)))))),
+     :(Float64.(xor.(Int(abs(round(x))), Int.(abs.(round.(y)))))),
+     :(Float64.(xor.(Int.(abs.(round.(x))), Int(abs(round(y)))))),
+     :(Float64.(xor.(eqsize(Int.(abs.(round.(x))), Int.(abs.(round.(y))))...))))
 fgen(:f_not, 1, :(1 - abs(round(x))), :(1 .- abs.(round.(x))))
 
 # Misc
