@@ -13,18 +13,19 @@ function data_setup()
         X[1, i] = Float64.(train_x[:, :, 1])
     end
     r = train_y
+    inds = r .<= 1
     Y = zeros(maximum(r)+1, size(X, 2))
     for i in eachindex(r)
         Y[r[i]+1, i] = 1.0
     end
-    X, Y
+    X[:, inds], Y[:, inds]
 end
 
 X, Y = data_setup()
 
 # test_x,  test_y  = MLDatasets.MNIST.testdata()
 
-seed = 111
+seed = 101
 Random.seed!(seed)
 
 e = Darwin.Evolution(MTCGPInd, cfg; id=string("mnist", seed))
@@ -32,7 +33,7 @@ mutation = i::MTCGPInd->goldman_mutate(cfg, i)
 e.populate = x::Darwin.Evolution->Darwin.oneplus_populate!(
     x; mutation=mutation)
 e.evaluate = x::Darwin.Evolution->Darwin.lexicase_evaluate!(
-    x, X, Y, MTCGP.mean_interpret)
+    x, X, Y, MTCGP.mean_interpret; seed=seed*x.gen, verify_best=true)
 
 Darwin.run!(e)
 best = sort(e.population)[end]
