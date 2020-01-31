@@ -1,4 +1,6 @@
 export Node, MTCGPInd
+import Base.copy, Base.String, Base.show, Base.summary
+using JSON
 
 function null(args...)::Nothing
     nothing
@@ -59,4 +61,46 @@ end
 function MTCGPInd(cfg::Dict)::MTCGPInd
     chromosome = rand(cfg["rows"] * cfg["columns"] * 3 + cfg["n_out"])
     MTCGPInd(cfg, chromosome)
+end
+
+function MTCGPInd(cfg::Dict, ind::String)::MTCGPInd
+    dict = JSON.parse(ind)
+    MTCGPInd(cfg, Array{Float64}(dict["chromosome"]))
+end
+
+function copy(n::Node)
+    Node(n.x, n.y, n.f, n.active)
+end
+
+function copy(ind::MTCGPInd)
+    buffer = Array{MType}(nothing, length(ind.buffer))
+    nodes = Array{Node}(undef, length(ind.nodes))
+    for i in eachindex(ind.nodes)
+        nodes[i] = copy(ind.nodes[i])
+    end
+    MTCGPInd(copy(ind.chromosome), copy(ind.genes), copy(ind.outputs),
+             nodes, buffer, copy(ind.fitness))
+end
+
+function String(n::Node)
+    JSON.json(n)
+end
+
+function String(ind::MTCGPInd)
+    JSON.json(Dict("chromosome"=>ind.chromosome, "fitness"=>ind.fitness))
+end
+
+function get_active_nodes(ind::MTCGPInd)
+    ind.nodes[[n.active for n in ind.nodes]]
+end
+
+function show(io::IO, ind::MTCGPInd)
+    print(io, String(ind))
+end
+
+function summary(io::IO, ind::MTCGPInd)
+    print(io, string("MTCGPInd(", get_active_nodes(ind), ", ",
+                     findall([n.active for n in ind.nodes]), ", ",
+                     ind.outputs, " ,",
+                     ind.fitness, ")"))
 end
