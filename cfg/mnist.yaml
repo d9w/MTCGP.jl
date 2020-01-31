@@ -4,14 +4,14 @@ d_fitness: 1
 n_population: 5
 n_elite: 1
 n_gen: 1000000
-log_gen: 100
+log_gen: 10
 save_gen: 0
 m_rate: 0.1
 # MTCGP.jl settings
 rows: 2
 columns: 100
 n_in: 1
-n_out: 10
+n_out: 2
 out_m_rate: 0.3
 functions:
   - f_head
