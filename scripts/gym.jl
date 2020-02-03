@@ -2,6 +2,7 @@
 @everywhere using PyCall
 @everywhere using Darwin
 @everywhere using ArgParse
+@everywhere import Distances
 @everywhere import Random
 @everywhere import Formatting
 @everywhere import Base.GC
@@ -14,14 +15,11 @@
         default = "cfg/gym.yaml"
         "--env"
         help = "environment"
-        default = "HalfCheetahBulletEnv-v0"
+        default = "AntBulletEnv-v0"
         "--seed"
         help = "random seed"
         arg_type = Int
         default = 0
-        "--dreward"
-        help = "use dreward slope"
-        action = :store_true
     end
     args = parse_args(ARGS, s)
 
@@ -33,15 +31,16 @@
     env = gym.make(cfg["env"])
     cfg["n_out"] = length(env.action_space.sample())
     cfg["n_in"] = length(env.observation_space.sample())
-    dr = args["dreward"]
     seed = args["seed"]
     Random.seed!(seed)
-    cfg, gym, seed, dr
+    cfg, seed
 end
 
-@everywhere cfg, gym, seed, dr = init()
+@everywhere cfg, seed = init()
 
-@everywhere function play_env(ind::MTCGPInd; seed::Int64=0, dreward::Float64=-Inf)
+@everywhere function play_env(ind::MTCGPInd; seed::Int64=0)
+    pybullet_envs = pyimport("pybullet_envs")
+    gym = pyimport("gym")
     env = gym.make(cfg["env"])
     env.seed(seed)
     obs = env.reset()
@@ -60,17 +59,13 @@ end
         end
         total_reward += reward
         nsteps += 1
-        if mod(nsteps, 100) == 0
-            if (total_reward / nsteps) < dreward
-                done = true
-                break
-            end
-        end
     end
+    x, y, z = env.robot.body_xyz
     env.close()
     env = nothing
     Base.GC.gc()
-    [total_reward, nsteps]
+    # [total_reward, nsteps]
+    [x, y, z, total_reward]
 end
 
 @everywhere function populate(evo::Darwin.Evolution)
@@ -79,30 +74,33 @@ end
 end
 
 @everywhere function evaluate(evo::Darwin.Evolution)
-    if evo.text == ""
-        nsteps, dreward, eval_fit = 0, -Inf, -Inf
-    else
-        nsteps, dreward, eval_fit = Meta.parse.(split(evo.text, " "))
-    end
-    fit = i::MTCGPInd->play_env(i, seed=evo.gen, dreward=dreward)
+    fit = i::MTCGPInd->play_env(i, seed=evo.gen)
     Darwin.distributed_evaluate!(evo; fitness=fit)
+    archive = evo.cfg["archive"]
+    max_reward = -Inf
     for i in eachindex(evo.population)
-        nsteps += evo.population[i].fitness[2]
-        d = evo.population[i].fitness[1] / evo.population[i].fitness[2]
-        if d > dreward
-            dreward = d
-            # evaluation fitness
-            eval_fit = play_env(evo.population[i]; seed=0, dreward=-Inf)[1]
+        fit = evo.population[i].fitness
+        if fit[4] > max_reward
+            max_reward = fit[4]
         end
+        end_pos = fit[1:3]
+        novelty = 0.0
+        if length(archive) > 0
+            novelty = minimum([Distances.euclidean(end_pos, i) for i in archive])
+        end
+        if novelty > 1e-2 || length(archive) == 0
+            push!(archive, end_pos)
+        end
+        evo.population[i].fitness .= novelty
     end
-    evo.text = Formatting.format("{1:e} {2:e} {3:e}",
-                                 nsteps, dreward, eval_fit)
+    evo.text = Formatting.format("{1:e}", max_reward)
     evo
 end
 
 e = Darwin.Evolution(MTCGPInd, cfg; id=string(cfg["env"], "_", seed),
                      populate=populate,
                      evaluate=evaluate)
+e.cfg["archive"] = Array{Array{Float64}}(undef, 0)
 Darwin.run!(e)
 best = sort(e.population)[end]
 println("Final fitness: ", best.fitness[1])

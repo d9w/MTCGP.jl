@@ -40,6 +40,7 @@ function MTCGPInd(cfg::Dict, chromosome::Array{Float64}, genes::Array{Int16},
         end
     end
     buffer = Array{MType}(nothing, R * C + cfg["n_in"])
+    buffer .= 0.0
     fitness = -Inf .* ones(cfg["d_fitness"])
     MTCGPInd(chromosome, genes, outputs, nodes, buffer, fitness)
 end
