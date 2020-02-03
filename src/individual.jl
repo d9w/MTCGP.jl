@@ -1,6 +1,5 @@
 export Node, MTCGPInd
 import Base.copy, Base.String, Base.show, Base.summary
-using JSON
 
 function null(args...)::Nothing
     nothing

@@ -100,7 +100,7 @@ end
         MTCGP.f_w_sqrt_xy,
         MTCGP.f_w_subtract
     ]
-    #test_functions(functions)
+    test_functions(functions)
 end
 
 @testset "Statistical functions" begin

@@ -8,6 +8,7 @@ import ImageFiltering
 import ImageMorphology
 import ImageTransformations
 import Darwin
+import JSON
 
 include("util.jl")
 include("functions.jl")
