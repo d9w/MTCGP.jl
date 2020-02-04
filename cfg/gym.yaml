@@ -1,6 +1,6 @@
 # Darwin.jl settings
 seed: 0
-d_fitness: 4
+d_fitness: 1
 n_population: 5
 n_elite: 1
 n_gen: 100000
