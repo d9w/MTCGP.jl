@@ -70,7 +70,7 @@ end
 
 @everywhere function populate(evo::Darwin.Evolution)
     mutation = i::MTCGPInd->goldman_mutate(cfg, i)
-    Darwin.oneplus_populate!(evo; mutation=mutation)
+    Darwin.oneplus_populate!(evo; mutation=mutation, reset_expert=true)
 end
 
 @everywhere function evaluate(evo::Darwin.Evolution)
