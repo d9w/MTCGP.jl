@@ -1,6 +1,6 @@
 using MTCGP
 import MLDatasets
-import Darwin
+import Cambrian
 import Random
 
 cfg = get_config("cfg/mnist.yaml")
@@ -42,27 +42,27 @@ seed = 200
 Random.seed!(seed)
 
 n_evos = 20
-evolutions = Array{Darwin.Evolution}(undef, n_evos)
+evolutions = Array{Cambrian.Evolution}(undef, n_evos)
 experts = Array{MTCGPInd}(undef, n_evos)
 for i in eachindex(experts)
     experts[i] = MTCGPInd(cfg)
 end
 
-function exchange_experts(e::Darwin.Evolution; n_experts=5)
+function exchange_experts(e::Cambrian.Evolution; n_experts=5)
     append!(e.population, experts[Random.randperm(n_evos)[1:n_experts]])
     # append!(e.population, sort(experts; rev=true)[1:n_experts])
     println([i.fitness[1] for i in e.population])
 end
 
 for evo in eachindex(evolutions)
-    e = Darwin.Evolution(MTCGPInd, cfg; id=string("mnist", seed+evo),
+    e = Cambrian.Evolution(MTCGPInd, cfg; id=string("mnist", seed+evo),
                          generation=exchange_experts)
     mutation = i::MTCGPInd->goldman_mutate(cfg, i)
-    e.populate = x::Darwin.Evolution->Darwin.oneplus_populate!(
+    e.populate = x::Cambrian.Evolution->Cambrian.oneplus_populate!(
         x; mutation=mutation)
-    #e.evaluate = x::Darwin.Evolution->Darwin.fitness_evaluate!(
+    #e.evaluate = x::Cambrian.Evolution->Cambrian.fitness_evaluate!(
     #    x; fitness=evaluate)
-    e.evaluate = x::Darwin.Evolution->Darwin.lexicase_evaluate!(
+    e.evaluate = x::Cambrian.Evolution->Cambrian.lexicase_evaluate!(
         x, X, Y, MTCGP.mean_interpret; seed=(seed+evo)*x.gen, verify_best=false)
     evolutions[evo] = e
 end
@@ -70,14 +70,14 @@ end
 for step in 1:cfg["n_gen"]
     best_fit = 0.0
     for evo in eachindex(evolutions)
-        Darwin.step!(evolutions[evo])
+        Cambrian.step!(evolutions[evo])
         experts[evo] = copy(sort(evolutions[evo].population)[end])
         if experts[evo].fitness[1] > best_fit
             best_fit = experts[evo].fitness[1]
         end
     end
     println(step, " ", best_fit)
-    # Darwin.run!(e)
+    # Cambrian.run!(e)
     # best = sort(e.population)[end]
     # println("Final fitness: ", best.fitness[1])
 end

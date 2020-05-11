@@ -12,7 +12,7 @@ struct Node
     active::Bool
 end
 
-struct MTCGPInd <: Darwin.Individual
+struct MTCGPInd <: Cambrian.Individual
     chromosome::Array{Float64}
     genes::Array{Int16}
     outputs::Array{Int16}

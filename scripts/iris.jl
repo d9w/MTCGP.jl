@@ -1,6 +1,6 @@
 using MTCGP
 import RDatasets
-import Darwin
+import Cambrian
 
 cfg = get_config("cfg/iris.yaml")
 
@@ -29,15 +29,15 @@ function evaluate(ind::MTCGP.MTCGPInd)
     [accuracy / size(X, 1)]
 end
 
-e = Darwin.Evolution(MTCGPInd, cfg; id="iris")
+e = Cambrian.Evolution(MTCGPInd, cfg; id="iris")
 mutation = i::MTCGPInd->goldman_mutate(cfg, i)
-e.populate = x::Darwin.Evolution->Darwin.oneplus_populate!(
+e.populate = x::Cambrian.Evolution->Cambrian.oneplus_populate!(
     x; mutation=mutation)
-e.evaluate = x::Darwin.Evolution->Darwin.fitness_evaluate!(
+e.evaluate = x::Cambrian.Evolution->Cambrian.fitness_evaluate!(
     x; fitness=evaluate)
-#e.evaluate = x::Darwin.Evolution->Darwin.lexicase_evaluate!(
+#e.evaluate = x::Cambrian.Evolution->Cambrian.lexicase_evaluate!(
 #    x, X, Y, MTCGP.interpret)
 
-Darwin.run!(e)
+Cambrian.run!(e)
 best = sort(e.population)[end]
 println("Final fitness: ", best.fitness[1])

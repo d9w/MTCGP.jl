@@ -1,7 +1,7 @@
 using Test
 using MTCGP
 using RDatasets
-import Darwin
+import Cambrian
 import Random
 
 cfg = get_config("../cfg/test.yaml")
@@ -46,17 +46,17 @@ end
 @testset "Symbolic Regression Evolution" begin
     e = MTCGP.evolution(cfg, symbolic_evaluate; id="rosenbrock")
 
-    Darwin.step!(e)
+    Cambrian.step!(e)
     @test length(e.population) == cfg["n_population"]
     best = sort(e.population)[end]
     @test best.fitness[1] <= 0.0
     @test e.gen == 1
 
-    Darwin.run!(e)
+    Cambrian.run!(e)
     @test length(e.population) == cfg["n_population"]
     @test e.gen == cfg["n_gen"]
     println("Evolution step for symbolic regression")
-    @timev Darwin.step!(e)
+    @timev Cambrian.step!(e)
     new_best = sort(e.population)[end]
     println("Final fitness: ", new_best.fitness[1])
     @test new_best.fitness[1] <= 0.0
@@ -82,25 +82,25 @@ end
     cfg = get_config("../cfg/iris.yaml")
     cfg["n_gen"] = 1000
 
-    e = Darwin.Evolution(MTCGPInd, cfg; id="iris")
+    e = Cambrian.Evolution(MTCGPInd, cfg; id="iris")
     mutation = i::MTCGPInd->goldman_mutate(cfg, i)
-    e.populate = x::Darwin.Evolution->Darwin.oneplus_populate!(
+    e.populate = x::Cambrian.Evolution->Cambrian.oneplus_populate!(
         x; mutation=mutation)
-    e.evaluate = x::Darwin.Evolution->Darwin.lexicase_evaluate!(
+    e.evaluate = x::Cambrian.Evolution->Cambrian.lexicase_evaluate!(
         x, X, Y, MTCGP.interpret)
 
-    Darwin.step!(e)
+    Cambrian.step!(e)
     @test length(e.population) == cfg["n_population"]
     best = sort(e.population)[end]
     @test best.fitness[1] >= 0.0
     @test best.fitness[1] <= size(X, 2)
     @test e.gen == 1
 
-    Darwin.run!(e)
+    Cambrian.run!(e)
     @test length(e.population) == cfg["n_population"]
     @test e.gen == cfg["n_gen"]
     println("Evolution step for lexicase selection symbolic regression")
-    @timev Darwin.step!(e)
+    @timev Cambrian.step!(e)
     new_best = sort(e.population)[end]
     println("Final fitness: ", new_best.fitness[1])
     @test new_best.fitness[1] >= 0.0

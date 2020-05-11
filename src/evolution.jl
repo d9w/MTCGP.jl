@@ -39,16 +39,16 @@ function goldman_mutate(cfg::Dict, ind::MTCGPInd)::MTCGPInd
 end
 
 function evolution(cfg::Dict, fitness::Function; kwargs...)
-    function evaluate!(evo::Darwin.Evolution)
+    function evaluate!(evo::Cambrian.Evolution)
         fit = i::MTCGPInd->fitness(i; seed=evo.gen)
-        Darwin.fitness_evaluate!(evo; fitness=fit)
+        Cambrian.fitness_evaluate!(evo; fitness=fit)
     end
-    function populate!(evo::Darwin.Evolution)
+    function populate!(evo::Cambrian.Evolution)
         mutation = i::MTCGPInd->goldman_mutate(cfg, i)
-        Darwin.oneplus_populate!(evo; mutation=mutation)
+        Cambrian.oneplus_populate!(evo; mutation=mutation)
     end
 
-    Darwin.Evolution(MTCGPInd, cfg; evaluate=evaluate!,
+    Cambrian.Evolution(MTCGPInd, cfg; evaluate=evaluate!,
                      populate=populate!,
                      kwargs...)
 end

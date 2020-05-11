@@ -7,7 +7,7 @@ import Images
 import ImageFiltering
 import ImageMorphology
 import ImageTransformations
-import Darwin
+import Cambrian
 import JSON
 
 include("util.jl")

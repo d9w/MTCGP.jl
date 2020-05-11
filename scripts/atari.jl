@@ -1,7 +1,7 @@
 using MTCGP
-using PyCall
 using Cambrian
 using ArgParse
+using ArcadeLearningEnvironment
 import Distances
 import Random
 import Formatting
@@ -33,6 +33,32 @@ cfg["n_in"] = length(env.observation_space.sample())
 seed = args["seed"]
 Random.seed!(seed)
 cfg["nsteps"] = 0
+
+
+
+episodes = 50
+
+ale = ALE_new()
+loadROM(ale, "seaquest")
+
+S = zeros(Int64, episodes)
+TR = zeros(episodes)
+for ei = 1:episodes
+    ctr = 0.0
+
+    fc = 0
+    while game_over(ale) == false
+        actions = getLegalActionSet(ale)
+        ctr += act(ale, actions[rand(1:length(actions))])
+        fc += 1
+    end
+    reset_game(ale)
+    println("Game $ei ended after $fc frames with total reward $(ctr).")
+
+    S[ei] = fc
+    TR[ei] = ctr
+end
+ALE_del(ale)
 
 function play_env(ind::MTCGPInd; seed::Int64=0)
     env = gym.make(cfg["env"])
