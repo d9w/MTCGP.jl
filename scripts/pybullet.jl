@@ -8,10 +8,11 @@ import Formatting
 import Base.GC
 
 ```
-Demonstrates CGP on Discrete gym problems like MountainCar, CartPole, Acrobot
+Demonstrates CGP on Continuous gym problems using pybullet
 
-Requires installing gym:
+Requires installing gym and pybullet
 Conda.add("gym")
+Conda.add("bullet")
 ```
 
 s = ArgParseSettings()
@@ -21,7 +22,7 @@ s = ArgParseSettings()
     default = "cfg/gym.yaml"
     "--env"
     help = "environment"
-    default = "MountainCar-v0"
+    default = "AntBulletEnv-v0"
     "--seed"
     help = "random seed"
     arg_type = Int
@@ -31,10 +32,11 @@ args = parse_args(ARGS, s)
 
 cfg = get_config(args["cfg"])
 
+pybullet_envs = pyimport("pybullet_envs")
 gym = pyimport("gym")
 cfg["env"] = args["env"]
 env = gym.make(cfg["env"])
-cfg["n_out"] = env.action_space.n # length(env.action_space.sample())
+cfg["n_out"] = length(env.action_space.sample())
 cfg["n_in"] = length(env.observation_space.sample())
 seed = args["seed"]
 Random.seed!(seed)
@@ -46,12 +48,16 @@ function play_env(ind::MTCGPInd; seed::Int64=0)
     obs = env.reset()
     total_reward = 0.0
     done = false
-    max_obs = Float64(max(-minimum(env.observation_space.low),
-                          maximum(env.observation_space.high)))
+    max_obs = 2*pi
 
     while ~done
-        action = argmax(process(ind, obs ./ max_obs))-1)-1
+        action = process(ind, obs ./ max_obs)
         obs, reward, done, _ = env.step(action)
+        newmax = maximum(abs.(obs))
+        if newmax > max_obs
+            println("Increased max_obs from ", max_obs, " to ", newmax)
+            max_obs = newmax
+        end
         total_reward += reward
         cfg["nsteps"] += 1
     end
