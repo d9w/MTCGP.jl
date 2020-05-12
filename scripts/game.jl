@@ -52,3 +52,7 @@ function get_rgb(game::Game)
     rgb = Float64.(reshape(rawscreen/256., (3, game.width, game.height)));
     [Array{Float64}(rgb[i,:,:]) for i in 1:3]
 end
+
+function get_ram(game::Game)
+    getRAM(game.ale) ./ typemax(UInt8)
+end
