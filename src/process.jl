@@ -1,4 +1,4 @@
-export get_outputs, set_inputs, process
+export get_outputs, set_inputs, process, mean_process
 
 function get_outputs(ind::MTCGPInd)::Array{<:MType}
     # doesn't re-process, just gives outputs
