@@ -7,8 +7,11 @@ import Random
 include("game.jl")
 
 ```
-Playing Atari games using MTCGP
+Playing Atari games using MTCGP on screen input values
 
+This uses a single Game seed, meaning an unfair deterministic Atari
+environment. To evolve using a different game seed per generation, add in
+reset_expert=true and seed=evo.gen below
 ```
 
 s = ArgParseSettings()
@@ -57,11 +60,11 @@ end
 
 function populate(evo::Cambrian.Evolution)
     mutation = i::MTCGPInd->goldman_mutate(cfg, i)
-    Cambrian.oneplus_populate!(evo; mutation=mutation, reset_expert=true)
+    Cambrian.oneplus_populate!(evo; mutation=mutation, reset_expert=false) # true
 end
 
 function evaluate(evo::Cambrian.Evolution)
-    fit = i::MTCGPInd->play_atari(i; seed=evo.gen, max_frames=min(10*evo.gen, 18000))
+    fit = i::MTCGPInd->play_atari(i; max_frames=min(10*evo.gen, 18000)) #seed=evo.gen,
     Cambrian.fitness_evaluate!(evo; fitness=fit)
 end
 
